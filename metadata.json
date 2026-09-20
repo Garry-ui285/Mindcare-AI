@@ -1,0 +1,8 @@
+{
+  "name": "MindCare AI",
+  "description": "A comprehensive AI-powered mental wellness platform for mood tracking, private journaling, self-care exercises, and mindful emotional support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

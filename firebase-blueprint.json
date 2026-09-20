@@ -1,0 +1,249 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with personal wellness preferences and metadata.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique auth UID of the user."
+        },
+        "name": {
+          "type": "string",
+          "description": "User display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address."
+        },
+        "ageRange": {
+          "type": "string",
+          "description": "Selected age range for personalized suggestions."
+        },
+        "wellnessGoals": {
+          "type": "string",
+          "description": "Key wellness goals selected by user."
+        },
+        "notifications": {
+          "type": "boolean",
+          "description": "Whether wellness notifications/reminders are enabled."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account creation timestamp."
+        }
+      },
+      "required": ["userId", "name", "email"]
+    },
+    "MoodEntry": {
+      "title": "MoodEntry",
+      "description": "Daily mood record including energy, sleep hours, and optional reflections.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique mood entry document ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID."
+        },
+        "date": {
+          "type": "string",
+          "description": "ISO date string or YYYY-MM-DD format."
+        },
+        "mood": {
+          "type": "string",
+          "description": "Mood label (Very Happy, Happy, Neutral, Sad, Stressed, Anxious, Angry, Tired)."
+        },
+        "energyLevel": {
+          "type": "number",
+          "description": "Energy level on a scale from 1 to 5."
+        },
+        "sleepHours": {
+          "type": "number",
+          "description": "Hours of sleep reported."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or trigger observations."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp."
+        }
+      },
+      "required": ["userId", "date", "mood", "energyLevel", "sleepHours"]
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "Private reflective journal entry.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique journal document ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the journal entry."
+        },
+        "content": {
+          "type": "string",
+          "description": "Private journal reflections text."
+        },
+        "mood": {
+          "type": "string",
+          "description": "Associated mood state."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation ISO date."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update ISO date."
+        }
+      },
+      "required": ["userId", "title", "content", "createdAt"]
+    },
+    "ChatSession": {
+      "title": "ChatSession",
+      "description": "AI wellness assistant chat session record.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Session ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Brief topic or opening prompt."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp."
+        }
+      },
+      "required": ["userId", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Individual message in a chat session.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Message ID."
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Parent session ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "User ID."
+        },
+        "sender": {
+          "type": "string",
+          "description": "'user' or 'assistant'."
+        },
+        "text": {
+          "type": "string",
+          "description": "Message text content."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Message timestamp."
+        },
+        "isEmergency": {
+          "type": "boolean",
+          "description": "Flag for crisis alert triggering."
+        }
+      },
+      "required": ["sessionId", "userId", "sender", "text", "createdAt"]
+    },
+    "ActivityProgress": {
+      "title": "ActivityProgress",
+      "description": "User completion status of a self-care activity.",
+      "type": "object",
+      "properties": {
+        "activityId": {
+          "type": "string",
+          "description": "ID of the self-care activity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "User ID."
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether completed."
+        },
+        "completedAt": {
+          "type": "string",
+          "description": "Timestamp of completion."
+        }
+      },
+      "required": ["activityId", "userId", "completed"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User preferences and wellness reminder settings.",
+      "type": "object",
+      "properties": {
+        "darkMode": {
+          "type": "boolean",
+          "description": "Dark mode enabled."
+        },
+        "dailyReminderTime": {
+          "type": "string",
+          "description": "Time of day for reminder (e.g., '09:00')."
+        },
+        "dailyGoal": {
+          "type": "string",
+          "description": "Daily self-care or mindfulness goal."
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private user account profile and onboarding details."
+    },
+    "/users/{userId}/moodEntries/{entryId}": {
+      "schema": "MoodEntry",
+      "description": "User's private mood history records."
+    },
+    "/users/{userId}/journalEntries/{entryId}": {
+      "schema": "JournalEntry",
+      "description": "User's private reflective journal entries."
+    },
+    "/users/{userId}/chatSessions/{sessionId}": {
+      "schema": "ChatSession",
+      "description": "User's AI chat conversation sessions."
+    },
+    "/users/{userId}/chatSessions/{sessionId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages belonging to an AI chat session."
+    },
+    "/users/{userId}/activityProgress/{activityId}": {
+      "schema": "ActivityProgress",
+      "description": "Self-care activities marked completed by the user."
+    },
+    "/users/{userId}/preferences/{settingId}": {
+      "schema": "UserSettings",
+      "description": "User app preferences."
+    }
+  }
+}

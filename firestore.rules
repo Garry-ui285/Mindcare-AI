@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profile document
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Blanket listing of users is blocked
+      allow create: if isOwner(userId)
+                    && request.resource.data.userId == userId
+                    && request.resource.data.name is string && request.resource.data.name.size() <= 100
+                    && request.resource.data.email is string && request.resource.data.email.size() <= 150;
+      allow update: if isOwner(userId)
+                    && request.resource.data.userId == userId;
+      allow delete: if isOwner(userId);
+
+      // Subcollection: moodEntries
+      match /moodEntries/{entryId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+                      && request.resource.data.userId == userId
+                      && request.resource.data.mood is string && request.resource.data.mood.size() <= 50
+                      && request.resource.data.energyLevel is number
+                      && request.resource.data.sleepHours is number;
+        allow update: if isOwner(userId)
+                      && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: journalEntries
+      match /journalEntries/{entryId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+                      && request.resource.data.userId == userId
+                      && request.resource.data.title is string && request.resource.data.title.size() <= 200
+                      && request.resource.data.content is string && request.resource.data.content.size() <= 10000;
+        allow update: if isOwner(userId)
+                      && request.resource.data.userId == userId
+                      && request.resource.data.content is string && request.resource.data.content.size() <= 10000;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: chatSessions
+      match /chatSessions/{sessionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+
+        // Nested subcollection: messages
+        match /messages/{messageId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId)
+                        && request.resource.data.userId == userId
+                        && request.resource.data.text is string && request.resource.data.text.size() <= 4000;
+          allow update: if false; // Messages are immutable
+          allow delete: if isOwner(userId);
+        }
+      }
+
+      // Subcollection: activityProgress
+      match /activityProgress/{activityId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+                              && request.resource.data.userId == userId
+                              && request.resource.data.completed is bool;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: preferences
+      match /preferences/{settingId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
